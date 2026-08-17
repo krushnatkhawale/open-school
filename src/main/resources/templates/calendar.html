@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar — Private Digital School</title>
+    <link rel="stylesheet" th:href="@{/css/style.css(v=4)}">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/classifications" class="brand">
+            <span class="logo">&#127979;</span>
+            Private Digital School
+        </a>
+        <div class="nav-links">
+            <a href="/feed">Feed</a>
+            <a href="/classifications">Classifications</a>
+            <a href="/calendar" class="active">Calendar</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <h1>Calendar</h1>
+
+        <div class="calendar-header">
+            <div class="calendar-nav">
+                <a th:href="@{/calendar(year=${prevYear}, month=${prevMonth})}">&#8592; Previous</a>
+            </div>
+            <span class="month-year" th:text="${monthName + ' ' + year}"></span>
+            <div class="calendar-nav">
+                <a th:href="@{/calendar(year=${nextYear}, month=${nextMonth})}">Next &#8594;</a>
+            </div>
+        </div>
+
+        <div class="legend">
+            <span class="legend-item">
+                <span class="swatch" style="background: var(--calendar-class-bg); border-color: var(--calendar-class-border);"></span>
+                Classifications
+            </span>
+            <span class="legend-item">
+                <span class="swatch" style="background: var(--calendar-sched-bg); border-color: var(--calendar-sched-border);"></span>
+                Planned events
+            </span>
+        </div>
+
+        <div class="calendar-grid">
+            <div class="day-names">
+                <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+            </div>
+            <div class="weeks">
+                <th:block th:each="week : ${weeks}">
+                    <th:block th:each="cell : ${week}">
+                        <div th:classappend="${cell.day == 0} ? 'calendar-day-cell empty' : 'calendar-day-cell'">
+                            <a th:if="${cell.day > 0}"
+                               th:href="@{/calendar/day(date=${cell.dateStr})}"
+                               th:text="${cell.day}"
+                               th:classappend="${cell.hasClassifications && cell.hasScheduledEvents} ? 'calendar-day-link has-both' : (${cell.hasScheduledEvents} ? 'calendar-day-link has-scheduled' : (${cell.hasClassifications} ? 'calendar-day-link has-classifications' : 'calendar-day-link'))"
+                               class="calendar-day-link"></a>
+                            <div th:if="${cell.day > 0}" class="calendar-day-labels">
+                                <span th:if="${cell.hasClassifications}" class="calendar-day-label label-class">C</span>
+                                <span th:if="${cell.hasScheduledEvents}" class="calendar-day-label label-sched">P</span>
+                            </div>
+                        </div>
+                    </th:block>
+                </th:block>
+            </div>
+        </div>
+
+        <div class="links">
+            <a href="/classifications">&#8592; Back to list</a>
+        </div>
+    </main>
+</body>
+</html>

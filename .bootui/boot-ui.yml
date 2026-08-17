@@ -1,0 +1,12 @@
+# BootUI configuration (developer-local; safe to delete).
+
+dismissedRules:
+  - RAPI-NAME-002
+  - RAPI-VER-001
+  - RAPI-DOC-002
+  - RAPI-DOC-001
+  - RAPI-PAGE-001
+  - MEM-GC-005
+  - MEM-POOL-006
+  - MEM-CONTENT-004
+  - MEM-HEAP-008

@@ -1,0 +1,58 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '4.1.0'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.kaushalya'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom 'org.springframework.modulith:spring-modulith-bom:2.1.0'
+    }
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.telegram:telegrambots-springboot-longpolling-starter:10.1.0'
+    implementation 'org.telegram:telegrambots-client:10.1.0'
+
+    implementation platform("org.springframework.ai:spring-ai-bom:2.0.0")
+    implementation 'org.springframework.ai:spring-ai-starter-model-ollama'
+
+    implementation 'org.apache.pdfbox:pdfbox:3.0.4'
+
+    implementation 'org.springframework.modulith:spring-modulith-starter-core'
+    implementation 'org.springframework.modulith:spring-modulith-events-api'
+
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'org.postgresql:postgresql'
+    runtimeOnly 'org.springframework.boot:spring-boot-h2console'
+    runtimeOnly 'com.julien-dubois.bootui:bootui-spring-boot-starter:1.13.1'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-webmvc-test'
+    testImplementation 'org.springframework.modulith:spring-modulith-starter-test'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+bootRun {
+    environment 'TELEGRAM_BOT_TOKEN', System.getenv('TELEGRAM_BOT_TOKEN') ?: ''
+}

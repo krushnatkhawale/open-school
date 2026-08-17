@@ -1,0 +1,27 @@
+app:
+  test-seed-enabled: true
+  tag-backfill:
+    enabled: false
+  content-type-backfill:
+    enabled: false
+
+server:
+  port: 8080
+
+spring:
+  autoconfigure:
+    exclude: org.telegram.telegrambots.longpolling.starter.TelegramBotStarterConfiguration
+  datasource:
+    url: jdbc:h2:mem:digitalschool-e2e;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE
+  ai:
+    ollama:
+      base-url: http://localhost:11434
+      chat:
+        model: llama3:latest
+
+ollama:
+  vision-model: qwen2.5vl
+
+logging:
+  level:
+    com.kaushalya.digitalschool: DEBUG

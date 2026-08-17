@@ -1,0 +1,16 @@
+package com.kaushalya.digitalschool.shared;
+
+public enum CommunicationType {
+    DAILY_LESSON_UPDATE,
+    HOMEWORK_ASSIGNMENT,
+    CIRCULAR_NOTICE,
+    ACTION_REQUIRED,
+    TIMETABLE_CHANGE,
+    EVENT,
+    EXAM_ASSESSMENT,
+    ATTENDANCE,
+    ACHIEVEMENT,
+    GENERAL_INFORMATION,
+    OTHER_INFORMATION,
+    REMINDER
+}

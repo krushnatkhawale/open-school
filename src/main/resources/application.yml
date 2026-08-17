@@ -1,0 +1,76 @@
+telegram:
+  bot-token: ${TELEGRAM_BOT_TOKEN:PLACEHOLDER_TOKEN_REPLACE_ME}
+
+school:
+  academic-year-start-month: 4
+
+bootui:
+  enabled: OFF
+
+app:
+  tag-backfill:
+    enabled: false
+  content-type-backfill:
+    enabled: false
+
+spring:
+  datasource:
+    url: jdbc:h2:file:./data/digitalschool;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;AUTO_SERVER=TRUE
+    driver-class-name: org.h2.Driver
+  h2:
+    console:
+      enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: false
+  ai:
+    ollama:
+      base-url: http://localhost:11434
+      chat:
+        model: llama3:latest
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+
+logging:
+  level:
+    com.kaushalya.digitalschool: DEBUG
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+ollama:
+  vision-model: qwen2.5vl
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local, dev
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+bootui:
+  enabled: ON
+  mcp:
+    enabled: ON
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,beans,conditions,configprops,env,loggers,mappings,metrics,startup,scheduledtasks
+  endpoint:
+    health:
+      show-details: always

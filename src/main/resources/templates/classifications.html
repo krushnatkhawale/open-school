@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Communications — Private Digital School</title>
+    <link rel="stylesheet" th:href="@{/css/style.css(v=7)}">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/classifications" class="brand">
+            <span class="logo">&#127979;</span>
+            Private Digital School
+        </a>
+        <div class="nav-links">
+            <a href="/feed">Feed</a>
+            <a href="/classifications" class="active">Classifications</a>
+            <a href="/calendar">Calendar</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <h1>School Communications</h1>
+
+        <form class="filters" method="get" action="/classifications">
+            <div class="filter-group">
+                <label>Type</label>
+                <select name="type" th:value="${selectedType}">
+                    <option value="">All types</option>
+                    <option th:each="t : ${types}" th:value="${t}" th:text="${t}" th:selected="${t == selectedType}"></option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Chat ID</label>
+                <input type="number" name="chatId" th:value="${selectedChatId}" placeholder="e.g. 12345">
+            </div>
+            <div class="filter-group" style="align-self: flex-end;">
+                <button type="submit">Filter</button>
+                <a href="/classifications" class="clear-link" style="margin-left:0.5rem;">Clear</a>
+            </div>
+        </form>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Lesson Date</th>
+                    <th>Uploaded</th>
+                    <th>Chat</th>
+                    <th>Type</th>
+                    <th class="content-cell">Content</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="r : ${records}">
+                    <td th:text="${#temporals.format(r.eventDate, 'MMM dd, yyyy')}" style="white-space:nowrap"></td>
+                    <td th:text="${#temporals.format(r.uploadedAt, 'MMM dd, HH:mm')}" style="white-space:nowrap"></td>
+                    <td th:text="${r.chatId}" style="white-space:nowrap"></td>
+                    <td><span class="badge" th:classappend="'badge-' + ${r.communicationType}" th:text="${r.communicationType}"></span></td>
+                    <td class="content-cell">
+                        <a th:if="${r.imageContentType != null}" class="img-link" th:href="@{/api/classifications/{id}/image(id=${r.id})}" target="_blank" title="Open full image">
+                            <img class="img-thumb js-lightbox" th:src="@{/api/classifications/{id}/image(id=${r.id})}"
+                                 th:attr="data-desc=${r.aiDescription},data-date=${#temporals.format(r.eventDate, 'MMM dd, yyyy')}"
+                                 alt="Image for this communication"
+                                 onerror="this.parentElement.style.display='none';">
+                        </a>
+                        <span th:if="${r.imageContentType == null}" class="cell-text" th:title="${r.originalText}" th:text="${r.originalText}"></span>
+                    </td>
+                    <td>
+                        <button type="button" class="drawer-edit-btn js-edit"
+                                th:attr="data-id=${r.id},
+                                         data-type=${r.communicationType},
+                                         data-text=${r.originalText},
+                                         data-desc=${r.aiDescription},
+                                         data-date=${r.eventDate},
+                                         data-tags=${r.tags},
+                                         data-chat=${r.chatId},
+                                         data-uploaded=${#temporals.format(r.uploadedAt, 'MMM dd, HH:mm')},
+                                         data-has-image=${r.imageContentType != null}">Edit</button>
+                    </td>
+                </tr>
+                <tr th:if="${records.empty}">
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <div class="empty-icon">&#128204;</div>
+                            <p>No classifications yet. Send a message to the Telegram bot.</p>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p class="record-count">
+            <span th:text="${#lists.size(records)}"></span> record(s)
+            <span class="separator">&middot;</span>
+            <a href="/calendar">Calendar view</a>
+            <span class="separator">&middot;</span>
+            <a href="/api/classifications">JSON API</a>
+        </p>
+    </main>
+
+    <div class="lightbox" id="lightbox" hidden>
+        <div class="lightbox-backdrop"></div>
+        <div class="lightbox-content">
+            <button class="lightbox-close" type="button" aria-label="Close">&times;</button>
+            <img class="lightbox-image" src="" alt="Full image">
+            <p class="lightbox-meta"></p>
+        </div>
+    </div>
+
+    <div class="drawer" id="editDrawer" hidden>
+        <div class="drawer-backdrop"></div>
+        <div class="drawer-panel" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+            <div class="drawer-header">
+                <h2 id="drawerTitle">Edit Classification</h2>
+                <button type="button" class="drawer-close" aria-label="Close">&times;</button>
+            </div>
+            <form id="editForm" novalidate>
+                <div class="drawer-body">
+                    <p class="drawer-meta" id="drawerMeta"></p>
+                    <div class="drawer-image" id="drawerImage"></div>
+                    <div class="field">
+                        <label for="editType">Type</label>
+                        <select id="editType" name="communicationType" required>
+                            <option th:each="t : ${types}" th:value="${t}" th:text="${t}"></option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="editDate">Lesson Date</label>
+                        <input type="date" id="editDate" name="eventDate" required>
+                    </div>
+                    <div class="field">
+                        <label for="editText">Text</label>
+                        <textarea id="editText" name="originalText" rows="5"></textarea>
+                    </div>
+                    <div class="field">
+                        <span class="drawer-label">AI Description</span>
+                        <p class="drawer-ai-desc" id="editDescDisplay"></p>
+                    </div>
+                    <div class="field">
+                        <label for="editTags">Tags (comma separated)</label>
+                        <input type="text" id="editTags" name="tags" placeholder="english, maths, homework">
+                    </div>
+                    <p class="drawer-error" id="editError" hidden></p>
+                </div>
+                <div class="drawer-footer">
+                    <button type="button" class="drawer-btn drawer-btn-secondary" id="editCancel">Cancel</button>
+                    <button type="submit" class="drawer-btn drawer-btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        (function () {
+            var lightbox = document.getElementById('lightbox');
+            if (!lightbox) return;
+            var image = lightbox.querySelector('.lightbox-image');
+            var meta = lightbox.querySelector('.lightbox-meta');
+            function open(src, desc, date) {
+                image.src = src;
+                meta.textContent = (date ? date + (desc ? ' — ' : '') : '') + (desc || '');
+                lightbox.hidden = false;
+                document.body.style.overflow = 'hidden';
+            }
+            function close() {
+                lightbox.hidden = true;
+                image.src = '';
+                document.body.style.overflow = '';
+            }
+            document.querySelectorAll('.js-lightbox').forEach(function (img) {
+                img.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    open(img.src, img.dataset.desc || '', img.dataset.date || '');
+                });
+            });
+            lightbox.addEventListener('click', function (e) {
+                if (e.target === lightbox || e.target.classList.contains('lightbox-backdrop') || e.target.classList.contains('lightbox-close')) {
+                    close();
+                }
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && !lightbox.hidden) close();
+            });
+        })();
+
+        (function () {
+            var drawer = document.getElementById('editDrawer');
+            if (!drawer) return;
+            var form = document.getElementById('editForm');
+            var type = document.getElementById('editType');
+            var date = document.getElementById('editDate');
+            var text = document.getElementById('editText');
+            var descDisplay = document.getElementById('editDescDisplay');
+            var tags = document.getElementById('editTags');
+            var meta = document.getElementById('drawerMeta');
+            var imageBox = document.getElementById('drawerImage');
+            var error = document.getElementById('editError');
+            var currentId = null;
+
+            function open(data) {
+                currentId = data.id;
+                type.value = data.type || '';
+                date.value = data.date || '';
+                text.value = data.text || '';
+                descDisplay.textContent = data.desc || '\u2014';
+                tags.value = data.tags || '';
+                meta.textContent = 'Chat ' + data.chat + ' \u00b7 Uploaded ' + data.uploaded;
+                imageBox.innerHTML = '';
+                if (data.hasImage === 'true') {
+                    var src = '/api/classifications/' + encodeURIComponent(data.id) + '/image';
+                    var link = document.createElement('a');
+                    link.href = src;
+                    link.target = '_blank';
+                    link.title = 'Open full image';
+                    var img = document.createElement('img');
+                    img.className = 'drawer-thumb';
+                    img.src = src;
+                    img.alt = 'Record image';
+                    link.appendChild(img);
+                    imageBox.appendChild(link);
+                }
+                error.hidden = true;
+                drawer.hidden = false;
+                requestAnimationFrame(function () { drawer.classList.add('open'); });
+                document.body.style.overflow = 'hidden';
+            }
+
+            function close() {
+                drawer.classList.remove('open');
+                document.body.style.overflow = '';
+                setTimeout(function () { drawer.hidden = true; }, 250);
+            }
+
+            document.querySelectorAll('.js-edit').forEach(function (btn) {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    open(btn.dataset);
+                });
+            });
+
+            drawer.addEventListener('click', function (e) {
+                if (e.target === drawer || e.target.classList.contains('drawer-backdrop') || e.target.classList.contains('drawer-close')) {
+                    close();
+                }
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && !drawer.hidden) close();
+            });
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                error.hidden = true;
+                fetch('/api/classifications/' + encodeURIComponent(currentId), {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        communicationType: type.value,
+                        eventDate: date.value,
+                        originalText: text.value,
+                        tags: tags.value
+                    })
+                }).then(function (res) {
+                    if (res.ok) {
+                        window.location.reload();
+                        return;
+                    }
+                    if (res.status === 404) {
+                        error.textContent = 'This record no longer exists.';
+                    } else {
+                        error.textContent = 'Save failed (status ' + res.status + '). Please check the fields.';
+                    }
+                    error.hidden = false;
+                }).catch(function () {
+                    error.textContent = 'Network error \u2014 could not reach the server.';
+                    error.hidden = false;
+                });
+            });
+        })();
+    </script>
+</body>
+</html>

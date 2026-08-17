@@ -1,0 +1,17 @@
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+.idea/
+*.iml
+
+*.log
+.DS_Store
+
+# H2 file-based database
+data/
+
+# Playwright / E2E tests
+node_modules/
+test-results/
+playwright-report/

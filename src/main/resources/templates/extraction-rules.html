@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extraction Rules — Private Digital School</title>
+    <link rel="stylesheet" th:href="@{/css/style.css(v=12)}">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/feed" class="brand">
+            <span class="logo">&#127979;</span>
+            Private Digital School
+        </a>
+        <div class="nav-links">
+            <a href="/feed">Feed</a>
+            <a href="/classifications">Classifications</a>
+            <a href="/calendar">Calendar</a>
+            <a href="/extraction-rules" class="active">Extraction Rules</a>
+        </div>
+    </nav>
+
+    <svg class="er-icon-defs" aria-hidden="true" style="display:none">
+        <symbol id="er-icon-classification" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.83z"/>
+            <line x1="7" y1="7" x2="7.01" y2="7"/>
+        </symbol>
+        <symbol id="er-icon-imageDescription" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+        </symbol>
+        <symbol id="er-icon-date" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+        </symbol>
+        <symbol id="er-icon-scheduledEvents" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+            <path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/>
+            <path d="M8 18h.01"/><path d="M12 18h.01"/>
+        </symbol>
+        <symbol id="er-icon-tags" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" y1="9" x2="20" y2="9"/>
+            <line x1="4" y1="15" x2="20" y2="15"/>
+            <line x1="10" y1="3" x2="8" y2="21"/>
+            <line x1="16" y1="3" x2="14" y2="21"/>
+        </symbol>
+        <symbol id="er-icon-view" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/>
+            <circle cx="12" cy="12" r="3"/>
+        </symbol>
+    </svg>
+
+    <main class="er-workspace">
+        <aside class="er-rail" aria-label="Fields">
+            <div class="er-rail-head">
+                <span class="er-rail-title">Fields</span>
+                <span class="er-rail-count" th:text="${#lists.size(fields)}"></span>
+            </div>
+            <nav class="er-rail-nav">
+                <a th:each="field : ${fields}"
+                   class="er-rail-item"
+                   th:href="'#' + ${field.key}"
+                   th:data-spykey="${field.key}"
+                   th:aria-current="'false'">
+                    <span class="er-rail-icon">
+                        <svg class="er-icon"><use th:href="'#er-icon-' + ${field.key}"></use></svg>
+                    </span>
+                    <span class="er-rail-label" th:text="${field.label}"></span>
+                    <span class="er-rail-dot" th:classappend="${field.enabled ? 'on' : 'off'}"
+                          th:title="${field.enabled ? 'Enabled' : 'Disabled'}"></span>
+                </a>
+            </nav>
+            <button type="button" class="er-view-all-btn" data-er-modal-open>
+                <svg class="er-icon" aria-hidden="true"><use th:href="'#er-icon-view'"></use></svg>
+                <span>View Full prompt</span>
+            </button>
+            <p class="er-rail-note">
+                Edits apply to the next incoming message — no restart needed.
+                Toggle the dot to enable or disable a field.
+            </p>
+        </aside>
+
+        <section class="er-canvas">
+            <header class="er-canvas-head">
+                <h1>Extraction Rules</h1>
+                <p class="er-lead">
+                    These rules tell the AI how to extract each field from message text or image data.
+                    The output contract stays fixed in code; the rules are yours to edit.
+                </p>
+            </header>
+
+            <div class="flash-success" th:if="${flash}" th:text="${flash}"></div>
+            <div class="flash-error" th:if="${flashError}" th:text="${flashError}"></div>
+
+            <div class="er-canvas-body">
+                <section class="er-section" th:each="field : ${fields}"
+                         th:id="${field.key}" th:data-key="${field.key}">
+                    <header class="er-section-head">
+                        <span class="er-section-icon">
+                            <svg class="er-icon"><use th:href="'#er-icon-' + ${field.key}"></use></svg>
+                        </span>
+                        <div class="er-section-title">
+                            <h2 th:text="${field.label}"></h2>
+                            <p th:text="${field.description}"></p>
+                        </div>
+                        <div class="er-section-meta">
+                            <span class="badge badge-default" th:if="${field.usingDefault}"
+                                  title="Using the built-in default — nothing saved yet">default</span>
+                            <span class="er-status" th:classappend="${field.enabled ? 'enabled' : 'disabled'}"
+                                  th:text="${field.enabled ? 'enabled' : 'disabled'}"></span>
+                            <label class="er-switch" th:title="${field.enabled ? 'Disable this field' : 'Enable this field'}">
+                                <input type="checkbox" name="enabled" value="true"
+                                       th:checked="${field.enabled}"
+                                       th:form="'er-save-' + ${field.key}"
+                                       aria-label="Enabled">
+                                <span class="er-switch-track"></span>
+                            </label>
+                        </div>
+                    </header>
+
+                    <div class="er-section-body">
+                        <form method="post" th:action="@{/extraction-rules/{key}(key=${field.key})}"
+                              th:id="'er-save-' + ${field.key}" class="er-save-form">
+                            <label class="er-label" th:for="'rules-' + ${field.key}">Extraction rules</label>
+                            <textarea th:id="'rules-' + ${field.key}" name="rules" rows="7"
+                                      class="er-rules-input" th:text="${field.rules}"></textarea>
+                            <div class="er-actions">
+                                <button type="submit" class="drawer-btn drawer-btn-primary">Save</button>
+                                <span class="er-saved-hint">Saves with the toggle above — next message uses it.</span>
+                            </div>
+                        </form>
+
+                        <form method="post" th:action="@{/extraction-rules/{key}/reset(key=${field.key})}" class="er-reset-form">
+                            <button type="submit" class="er-reset-btn">Reset to default</button>
+                        </form>
+
+                        <details class="er-collapse" open>
+                            <summary class="er-collapse-head">Full prompt (contract + rules)</summary>
+                            <div class="er-collapse-body">
+                                <pre class="prompt-preview" th:text="${field.fullPrompt}"></pre>
+                            </div>
+                        </details>
+
+                        <details class="er-collapse" th:open="${testKey == field.key}">
+                            <summary class="er-collapse-head">Test this field</summary>
+                            <div class="er-collapse-body">
+                                <form method="post" enctype="multipart/form-data"
+                                      th:action="@{/extraction-rules/{key}/test(key=${field.key})}" class="er-test-form">
+                                    <div class="rule-field" th:if="${field.key == 'imageDescription'}">
+                                        <label th:for="'image-' + ${field.key}">Sample image</label>
+                                        <input type="file" name="sampleImage" th:id="'image-' + ${field.key}" accept="image/*">
+                                    </div>
+                                    <div class="rule-field" th:if="${field.key != 'imageDescription'}">
+                                        <label th:for="'text-' + ${field.key}">Sample text</label>
+                                        <textarea th:id="'text-' + ${field.key}" name="sampleText" rows="3"
+                                                  th:text="${testKey == field.key ? testInput : ''}"></textarea>
+                                    </div>
+                                    <div class="er-actions">
+                                        <button type="submit" class="er-test-btn">Run test</button>
+                                    </div>
+                                </form>
+
+                                <div class="test-result" th:if="${testKey == field.key}">
+                                    <strong>Result</strong>
+                                    <pre class="prompt-preview" th:if="${testResult != null}" th:text="${testResult}"></pre>
+                                    <p class="test-error" th:if="${testError != null}" th:text="${testError}"></p>
+                                </div>
+                            </div>
+                        </details>
+                    </div>
+                </section>
+            </div>
+        </section>
+    </main>
+
+    <div class="er-modal" id="erPromptModal" role="dialog" aria-modal="true" aria-hidden="true"
+         aria-labelledby="erModalTitle">
+        <div class="er-modal-backdrop" data-er-modal-close></div>
+        <div class="er-modal-panel">
+            <header class="er-modal-head">
+                <div class="er-modal-title">
+                    <h2 id="erModalTitle">Full prompt — all fields</h2>
+                    <p>Exactly what the model receives for each field: the fixed output contract (code) plus the
+                        current rules (editable).</p>
+                </div>
+                <button type="button" class="er-modal-close" data-er-modal-close aria-label="Close">&#215;</button>
+            </header>
+            <div class="er-modal-actions">
+                <button type="button" class="er-copy-btn" data-er-copy-all>Copy all</button>
+            </div>
+            <div class="er-modal-body">
+                <label class="er-label" for="erModalPrompt">Full prompt — all fields</label>
+                <textarea id="erModalPrompt" class="er-modal-single" readonly
+                          th:text="${fullPromptAll}"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            function resize(el) {
+                el.style.height = 'auto';
+                el.style.height = el.scrollHeight + 'px';
+            }
+            document.querySelectorAll('.er-rules-input').forEach(function (ta) {
+                ta.addEventListener('input', function () { resize(ta); });
+                resize(ta);
+            });
+
+            var items = Array.prototype.slice.call(document.querySelectorAll('.er-rail-item'));
+            var sections = Array.prototype.slice.call(document.querySelectorAll('.er-section'));
+
+            function setActive(key) {
+                items.forEach(function (a) {
+                    var active = a.getAttribute('data-spykey') === key;
+                    a.classList.toggle('active', active);
+                    a.setAttribute('aria-current', active ? 'true' : 'false');
+                });
+            }
+
+            if ('IntersectionObserver' in window && sections.length) {
+                var observer = new IntersectionObserver(function (entries) {
+                    entries.forEach(function (entry) {
+                        if (entry.isIntersecting) {
+                            setActive(entry.target.id);
+                        }
+                    });
+                }, { rootMargin: '-20% 0px -65% 0px', threshold: 0 });
+                sections.forEach(function (s) { observer.observe(s); });
+
+                items.forEach(function (a) {
+                    a.addEventListener('click', function () { setActive(a.getAttribute('data-spykey')); });
+                });
+            }
+
+            var modal = document.getElementById('erPromptModal');
+            function openModal() {
+                modal.classList.add('open');
+                modal.setAttribute('aria-hidden', 'false');
+                document.body.classList.add('er-modal-open');
+            }
+            function closeModal() {
+                modal.classList.remove('open');
+                modal.setAttribute('aria-hidden', 'true');
+                document.body.classList.remove('er-modal-open');
+            }
+            document.querySelectorAll('[data-er-modal-open]').forEach(function (b) {
+                b.addEventListener('click', openModal);
+            });
+            document.querySelectorAll('[data-er-modal-close]').forEach(function (b) {
+                b.addEventListener('click', closeModal);
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
+            });
+
+            function copyText(text, btn) {
+                var done = function () {
+                    var old = btn.textContent;
+                    btn.textContent = 'Copied';
+                    btn.classList.add('copied');
+                    setTimeout(function () { btn.textContent = old; btn.classList.remove('copied'); }, 1400);
+                };
+                function fallback() {
+                    var ta = document.createElement('textarea');
+                    ta.value = text;
+                    ta.setAttribute('readonly', '');
+                    ta.style.position = 'fixed';
+                    ta.style.opacity = '0';
+                    document.body.appendChild(ta);
+                    ta.select();
+                    try { document.execCommand('copy'); done(); } catch (e) {}
+                    document.body.removeChild(ta);
+                }
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(done).catch(fallback);
+                } else {
+                    fallback();
+                }
+            }
+            document.querySelectorAll('[data-er-copy-all]').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    copyText(document.getElementById('erModalPrompt').value, btn);
+                });
+            });
+        })();
+    </script>
+</body>
+</html>

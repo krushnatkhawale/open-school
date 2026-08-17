@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${'Activities for ' + date}">Activities</title>
+    <link rel="stylesheet" th:href="@{/css/style.css(v=4)}">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/classifications" class="brand">
+            <span class="logo">&#127979;</span>
+            Private Digital School
+        </a>
+        <div class="nav-links">
+            <a href="/feed">Feed</a>
+            <a href="/classifications">Classifications</a>
+            <a href="/calendar">Calendar</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <h1>Activities</h1>
+        <h2 th:text="${date}"></h2>
+
+        <div th:if="${not #lists.isEmpty(scheduledEvents)}" class="card">
+            <div class="card-header">Planned Events</div>
+            <div class="card-body" style="padding: 0;">
+                <div th:each="e : ${scheduledEvents}" class="event-row">
+                    <span class="badge" th:classappend="'badge-' + ${e.eventType}" th:text="${e.eventType}"></span>
+                    <span class="event-title" th:text="${e.title}"></span>
+                </div>
+            </div>
+        </div>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Type</th>
+                    <th>Text</th>
+                    <th>AI Description</th>
+                    <th>Image</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="r : ${records}">
+                    <td th:text="${#temporals.format(r.uploadedAt, 'HH:mm')}" style="white-space:nowrap"></td>
+                    <td><span class="badge" th:classappend="'badge-' + ${r.communicationType}" th:text="${r.communicationType}"></span></td>
+                    <td th:title="${r.originalText}" th:text="${r.originalText}" style="max-width:400px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></td>
+                    <td th:title="${r.aiDescription}" th:text="${r.aiDescription}" style="max-width:400px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></td>
+                    <td>
+                        <a th:if="${r.imageContentType != null}" class="img-link" th:href="@{/api/classifications/{id}/image(id=${r.id})}" target="_blank" title="Open full image">
+                            <img class="img-thumb js-lightbox" th:src="@{/api/classifications/{id}/image(id=${r.id})}"
+                                 th:attr="data-desc=${r.aiDescription},data-date=${#temporals.format(r.uploadedAt, 'HH:mm')}"
+                                 alt="Image for this communication"
+                                 onerror="this.parentElement.style.display='none';">
+                        </a>
+                        <span th:if="${r.imageContentType == null}" class="img-placeholder">&mdash;</span>
+                    </td>
+                </tr>
+                <tr th:if="${records.empty && #lists.isEmpty(scheduledEvents)}">
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <div class="empty-icon">&#128204;</div>
+                            <p>No activities on this day.</p>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${records.empty && not #lists.isEmpty(scheduledEvents)}">
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <div class="empty-icon">&#128204;</div>
+                            <p>No uploaded communications on this day.</p>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="links">
+            <a href="/calendar">&#8592; Back to calendar</a>
+            <span class="separator">&middot;</span>
+            <a href="/classifications">All classifications</a>
+        </div>
+    </main>
+
+    <div class="lightbox" id="lightbox" hidden>
+        <div class="lightbox-backdrop"></div>
+        <div class="lightbox-content">
+            <button class="lightbox-close" type="button" aria-label="Close">&times;</button>
+            <img class="lightbox-image" src="" alt="Full image">
+            <p class="lightbox-meta"></p>
+        </div>
+    </div>
+    <script>
+        (function () {
+            var lightbox = document.getElementById('lightbox');
+            if (!lightbox) return;
+            var image = lightbox.querySelector('.lightbox-image');
+            var meta = lightbox.querySelector('.lightbox-meta');
+            function open(src, desc, date) {
+                image.src = src;
+                meta.textContent = (date ? date + (desc ? ' — ' : '') : '') + (desc || '');
+                lightbox.hidden = false;
+                document.body.style.overflow = 'hidden';
+            }
+            function close() {
+                lightbox.hidden = true;
+                image.src = '';
+                document.body.style.overflow = '';
+            }
+            document.querySelectorAll('.js-lightbox').forEach(function (img) {
+                img.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    open(img.src, img.dataset.desc || '', img.dataset.date || '');
+                });
+            });
+            lightbox.addEventListener('click', function (e) {
+                if (e.target === lightbox || e.target.classList.contains('lightbox-backdrop') || e.target.classList.contains('lightbox-close')) {
+                    close();
+                }
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && !lightbox.hidden) close();
+            });
+        })();
+    </script>
+</body>
+</html>
