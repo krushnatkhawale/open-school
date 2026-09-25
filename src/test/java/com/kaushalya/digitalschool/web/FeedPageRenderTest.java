@@ -133,6 +133,29 @@ class FeedPageRenderTest {
 
         assertEquals(1, StringUtils.countOccurrencesOf(html, "id=\"schoolSelect\""));
         assertEquals(1, StringUtils.countOccurrencesOf(html, "value=\"\">All schools"));
-        assertEquals(1, StringUtils.countOccurrencesOf(html, "aria-label=\"Select school for feed\""));
+        assertEquals(1, StringUtils.countOccurrencesOf(html, "aria-label=\"Select school\""));
+    }
+
+    @Test
+    void navbarJavascriptIsRenderedInPage() throws Exception {
+        String html = mockMvc.perform(get("/feed"))
+                .andReturn().getResponse().getContentAsString();
+
+        assertEquals(1, StringUtils.countOccurrencesOf(html, "getElementById('navToggle')"));
+        assertEquals(1, StringUtils.countOccurrencesOf(html, "getElementById('schoolSelect')"));
+        assertEquals(1, StringUtils.countOccurrencesOf(html, "window.location.href"));
+    }
+
+    @Test
+    void themeSwitcherAndAnimatedBackgroundScriptsAreRendered() throws Exception {
+        String html = mockMvc.perform(get("/feed"))
+                .andReturn().getResponse().getContentAsString();
+
+        assertEquals(2, StringUtils.countOccurrencesOf(html, "class=\"theme-btn"));
+        assertEquals(1, StringUtils.countOccurrencesOf(html, "data-theme=\"static\""));
+        assertEquals(1, StringUtils.countOccurrencesOf(html, "data-theme=\"animated\""));
+        assertEquals(1, StringUtils.countOccurrencesOf(html, "id=\"three-bg\""));
+        assertEquals(1, StringUtils.countOccurrencesOf(html, "theme-animated.js"));
+        assertEquals(1, StringUtils.countOccurrencesOf(html, "type=\"importmap\""));
     }
 }

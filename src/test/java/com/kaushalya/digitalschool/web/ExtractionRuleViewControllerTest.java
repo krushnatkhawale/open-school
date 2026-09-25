@@ -3,6 +3,7 @@ package com.kaushalya.digitalschool.web;
 import com.kaushalya.digitalschool.classification.AiChatService;
 import com.kaushalya.digitalschool.classification.ExtractionRuleService;
 import com.kaushalya.digitalschool.classification.ExtractionRuleView;
+import com.kaushalya.digitalschool.onboarding.SchoolRepository;
 import com.kaushalya.digitalschool.shared.CommunicationType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,6 +32,9 @@ class ExtractionRuleViewControllerTest {
     private AiChatService aiChatService;
 
     @Mock
+    private SchoolRepository schoolRepository;
+
+    @Mock
     private Model model;
 
     @Mock
@@ -40,7 +44,7 @@ class ExtractionRuleViewControllerTest {
 
     @BeforeEach
     void setUp() {
-        controller = new ExtractionRuleViewController(ruleService, aiChatService);
+        controller = new ExtractionRuleViewController(ruleService, aiChatService, schoolRepository);
     }
 
     @Test

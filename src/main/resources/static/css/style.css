@@ -115,6 +115,7 @@ body {
   background: var(--school-accent);
   border-radius: 10px;
   font-size: 1.3rem;
+  flex-shrink: 0;
 }
 
 .navbar .nav-links {
@@ -141,10 +142,41 @@ body {
   border-bottom: 2px solid var(--school-accent);
 }
 
+/* Mobile hamburger toggle — hidden on desktop */
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 8px;
+  margin-left: auto;
+}
+
+.nav-toggle span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: white;
+  border-radius: 2px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.nav-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
 .school-picker {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  margin-left: 1rem;
 }
 
 .school-picker-label {
@@ -164,7 +196,60 @@ body {
   cursor: pointer;
 }
 
+/* ---- Mobile-first navbar: collapse to a slide-down menu ---- */
 @media (max-width: 760px) {
+  .navbar {
+    padding: 0 1rem;
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 56px;
+  }
+
+  .navbar .brand {
+    padding: 0.6rem 0;
+  }
+
+  .nav-toggle {
+    display: flex;
+  }
+
+  .navbar .nav-links {
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    width: 100%;
+    padding: 0.25rem 0 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    margin-top: 0.25rem;
+  }
+
+  .navbar .nav-links.open {
+    display: flex;
+  }
+
+  .navbar .nav-links a {
+    padding: 0.8rem 0.5rem;
+    font-size: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+  }
+
+  .navbar .nav-links a:last-child {
+    border-bottom: none;
+  }
+
+  .navbar .nav-links a.active {
+    background: rgba(255, 255, 255, 0.12);
+    color: white;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .school-picker {
+    margin-left: 0.75rem;
+    flex: 0 0 auto;
+  }
+
   .school-picker-label {
     display: none;
   }
@@ -795,9 +880,7 @@ a:hover .img-thumb {
   align-items: center;
   gap: 1.25rem;
   margin-bottom: 1rem;
-}
-
-.feed-stream-head h1 {
+}.feed-stream-head h1 {
   margin: 0;
   flex-shrink: 0;
 }
@@ -2390,4 +2473,195 @@ body.er-modal-open {
     width: 100%;
     padding-top: 0.25rem;
   }
+}
+
+/* ==== WhatsApp-style schooly background (full-page) ====
+   Applies the repeating school-themed doodle pattern to the whole page
+   instead of only the feed area. Content panels keep solid white
+   surfaces (defined above) so text stays readable over the pattern. */
+body {
+  background-color: #e8e4da;
+  background-image: url('/images/school-chat-bg.svg');
+  background-repeat: repeat;
+  background-size: 240px 240px;
+  background-attachment: fixed;
+}
+
+/* Feed stream reads like a chat: near-opaque bubbles over the pattern */
+.feed-stream .feed-card {
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 1px 6px rgba(26, 54, 93, 0.12), 0 0 0 1px rgba(26, 54, 93, 0.06);
+}
+
+/* Center the conversation column so it reads like a chat */
+@media (min-width: 1400px) {
+  .feed-layout {
+    grid-template-columns: 240px minmax(0, 780px) 160px;
+    justify-content: center;
+  }
+}
+
+/* ==== Mobile-first: look like an app on a phone ==== */
+@media (max-width: 860px) {
+  .container {
+    padding: 0 0 1.25rem;
+  }
+
+  .feed-layout {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  /* Filters + meter become slide-down panels toggled by the page header row */
+  .feed-filters,
+  .feed-meter {
+    position: static;
+    margin: 0 0 0.75rem;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+
+  .feed-stream {
+    padding: 0 0.25rem;
+  }
+
+  .feed-stream-head {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.6rem;
+    padding: 1rem 1rem 0.5rem;
+  }
+
+  .feed-stream-head h1 {
+    margin: 0;
+  }
+
+  .feed-card {
+    border-radius: 12px;
+    padding: 0.8rem 0.9rem;
+    margin: 0 0.5rem 0.6rem;
+  }
+
+  .feed-month-section {
+    margin: 0.6rem;
+    scroll-margin-top: 4.5rem;
+  }
+
+  /* Tables scroll horizontally on small screens instead of breaking layout */
+  .table {
+    display: block;
+    overflow-x: auto;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  .table thead,
+  .table tbody {
+    min-width: 640px;
+  }
+
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+    margin: 0 1rem 1rem;
+  }
+
+  .filters .filter-group {
+    width: 100%;
+  }
+
+  .calendar-grid {
+    margin: 0 0.5rem;
+  }
+
+  h1 {
+    font-size: 1.3rem;
+  }
+
+  /* Comfortable touch targets */
+  .drawer-edit-btn,
+  .filters button,
+  .calendar-nav a {
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+  }
+
+  .links {
+    padding: 0 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar .brand .brand-name {
+    font-size: 1rem;
+  }
+
+  .feed-stream-head .feed-search .feed-search-box {
+    font-size: 1rem;
+  }
+}
+
+/* ==== Theme switcher (navbar) ==== */
+.theme-switch {
+  display: flex;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  margin-left: 0.75rem;
+  flex-shrink: 0;
+}
+
+.theme-btn {
+  padding: 4px 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.theme-btn:hover {
+  color: white;
+}
+
+.theme-btn.active {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+@media (max-width: 760px) {
+  .theme-switch {
+    margin-left: 0;
+    order: 5;
+    width: 100%;
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
+}
+
+/* ==== Three.js animated background canvas ==== */
+#three-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+body:not(.theme-animated) #three-bg {
+  display: none;
+}
+
+body.theme-animated {
+  background-image: none !important;
 }

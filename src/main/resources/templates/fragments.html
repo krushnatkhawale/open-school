@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav th:fragment="navbar(activePage)" class="navbar">
+    <a href="/feed" class="brand">
+        <span class="logo">&#127979;</span>
+        <span class="brand-name">Private Digital School</span>
+    </a>
+    <button type="button" class="nav-toggle" id="navToggle" aria-label="Toggle navigation"
+            aria-expanded="false">
+        <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links" id="navLinks">
+        <a href="/feed" th:classappend="${activePage == 'feed'} ? 'active'"
+           th:attr="aria-current=${activePage == 'feed'} ? 'page' : null">Feed</a>
+        <a href="/classifications" th:classappend="${activePage == 'classifications'} ? 'active'"
+           th:attr="aria-current=${activePage == 'classifications'} ? 'page' : null">Classifications</a>
+        <a href="/calendar" th:classappend="${activePage == 'calendar'} ? 'active'"
+           th:attr="aria-current=${activePage == 'calendar'} ? 'page' : null">Calendar</a>
+        <a href="/extraction-rules" th:classappend="${activePage == 'extraction-rules'} ? 'active'"
+           th:attr="aria-current=${activePage == 'extraction-rules'} ? 'page' : null">Extraction Rules</a>
+    </div>
+    <label class="school-picker" th:if="${schools != null}" th:attr="data-base-path=${#strings.toLowerCase(activePage)}">
+        <span class="school-picker-label">School</span>
+        <select id="schoolSelect" class="school-select" aria-label="Select school">
+            <option value="">All schools</option>
+            <option th:each="s : ${schools}"
+                    th:value="${s.id}"
+                    th:selected="${selectedSchoolId != null and selectedSchoolId == s.id}"
+                    th:text="${s.name}"></option>
+        </select>
+    </label>
+    <div class="theme-switch">
+        <button type="button" class="theme-btn active" data-theme="static">Static</button>
+        <button type="button" class="theme-btn" data-theme="animated">Animated</button>
+    </div>
+
+    <script th:if="${schools != null}">
+        (function () {
+            var select = document.getElementById('schoolSelect');
+            if (!select) return;
+            var picker = select.closest('.school-picker');
+            var basePath = (picker && picker.dataset.basePath)
+                ? '/' + picker.dataset.basePath
+                : '/feed';
+            select.addEventListener('change', function () {
+                var value = select.value;
+                var url = value ? basePath + '?schoolId=' + encodeURIComponent(value) : basePath;
+                window.location.href = url;
+            });
+        })();
+    </script>
+    <script>
+        (function () {
+            var toggle = document.getElementById('navToggle');
+            var links = document.getElementById('navLinks');
+            if (!toggle || !links) return;
+            toggle.addEventListener('click', function () {
+                var open = links.classList.toggle('open');
+                toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            });
+            document.addEventListener('click', function (e) {
+                if (links.classList.contains('open')
+                    && !links.contains(e.target)
+                    && !toggle.contains(e.target)) {
+                    links.classList.remove('open');
+                    toggle.setAttribute('aria-expanded', 'false');
+                }
+            });
+        })();
+    </script>
+</nav>
+</body>
+</html>

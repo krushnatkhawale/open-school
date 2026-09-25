@@ -4,6 +4,7 @@ import com.kaushalya.digitalschool.classification.AiChatService;
 import com.kaushalya.digitalschool.classification.ExtractionField;
 import com.kaushalya.digitalschool.classification.ExtractionRuleService;
 import com.kaushalya.digitalschool.classification.ExtractionRuleView;
+import com.kaushalya.digitalschool.onboarding.SchoolRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -26,10 +27,14 @@ public class ExtractionRuleViewController {
 
     private final ExtractionRuleService ruleService;
     private final AiChatService aiChatService;
+    private final SchoolRepository schoolRepository;
 
-    public ExtractionRuleViewController(ExtractionRuleService ruleService, AiChatService aiChatService) {
+    public ExtractionRuleViewController(ExtractionRuleService ruleService,
+                                        AiChatService aiChatService,
+                                        SchoolRepository schoolRepository) {
         this.ruleService = ruleService;
         this.aiChatService = aiChatService;
+        this.schoolRepository = schoolRepository;
     }
 
     @GetMapping("/extraction-rules")
@@ -37,6 +42,8 @@ public class ExtractionRuleViewController {
         List<ExtractionRuleView> fields = ruleService.findAll();
         model.addAttribute("fields", fields);
         model.addAttribute("fullPromptAll", buildFullPromptAll(fields));
+        model.addAttribute("schools", schoolRepository.findAllByOrderByNameAsc());
+        model.addAttribute("selectedSchoolId", null);
         return "extraction-rules";
     }
 
@@ -69,6 +76,8 @@ public class ExtractionRuleViewController {
         List<ExtractionRuleView> fields = ruleService.findAll();
         model.addAttribute("fields", fields);
         model.addAttribute("fullPromptAll", buildFullPromptAll(fields));
+        model.addAttribute("schools", schoolRepository.findAllByOrderByNameAsc());
+        model.addAttribute("selectedSchoolId", null);
 
         ExtractionField field = ExtractionField.fromKey(key);
         model.addAttribute("testKey", field.key());

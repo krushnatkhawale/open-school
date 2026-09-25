@@ -4,21 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Extraction Rules — Private Digital School</title>
-    <link rel="stylesheet" th:href="@{/css/style.css(v=12)}">
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.162.0/examples/jsm/"
+      }
+    }
+    </script>
+    <link rel="stylesheet" th:href="@{/css/style.css(v=23)}">
 </head>
 <body>
-    <nav class="navbar">
-        <a href="/feed" class="brand">
-            <span class="logo">&#127979;</span>
-            Private Digital School
-        </a>
-        <div class="nav-links">
-            <a href="/feed">Feed</a>
-            <a href="/classifications">Classifications</a>
-            <a href="/calendar">Calendar</a>
-            <a href="/extraction-rules" class="active">Extraction Rules</a>
-        </div>
-    </nav>
+    <canvas id="three-bg" aria-hidden="true"></canvas>
+    <nav th:replace="~{fragments :: navbar('extraction-rules')}"></nav>
 
     <svg class="er-icon-defs" aria-hidden="true" style="display:none">
         <symbol id="er-icon-classification" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -291,5 +289,6 @@
             });
         })();
     </script>
+    <script type="module" src="/js/theme-animated.js"></script>
 </body>
 </html>

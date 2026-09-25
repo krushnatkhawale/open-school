@@ -4,20 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>School Communications — Private Digital School</title>
-    <link rel="stylesheet" th:href="@{/css/style.css(v=7)}">
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.162.0/examples/jsm/"
+      }
+    }
+    </script>
+    <link rel="stylesheet" th:href="@{/css/style.css(v=23)}">
 </head>
 <body>
-    <nav class="navbar">
-        <a href="/classifications" class="brand">
-            <span class="logo">&#127979;</span>
-            Private Digital School
-        </a>
-        <div class="nav-links">
-            <a href="/feed">Feed</a>
-            <a href="/classifications" class="active">Classifications</a>
-            <a href="/calendar">Calendar</a>
-        </div>
-    </nav>
+    <canvas id="three-bg" aria-hidden="true"></canvas>
+    <nav th:replace="~{fragments :: navbar('classifications')}"></nav>
 
     <main class="container">
         <h1>School Communications</h1>
@@ -279,5 +278,6 @@
             });
         })();
     </script>
+    <script type="module" src="/js/theme-animated.js"></script>
 </body>
 </html>

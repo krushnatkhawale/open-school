@@ -4,20 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${'Activities for ' + date}">Activities</title>
-    <link rel="stylesheet" th:href="@{/css/style.css(v=4)}">
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.162.0/examples/jsm/"
+      }
+    }
+    </script>
+    <link rel="stylesheet" th:href="@{/css/style.css(v=23)}">
 </head>
 <body>
-    <nav class="navbar">
-        <a href="/classifications" class="brand">
-            <span class="logo">&#127979;</span>
-            Private Digital School
-        </a>
-        <div class="nav-links">
-            <a href="/feed">Feed</a>
-            <a href="/classifications">Classifications</a>
-            <a href="/calendar">Calendar</a>
-        </div>
-    </nav>
+    <canvas id="three-bg" aria-hidden="true"></canvas>
+    <nav th:replace="~{fragments :: navbar('calendar')}"></nav>
 
     <main class="container">
         <h1>Activities</h1>
@@ -79,7 +78,7 @@
         </table>
 
         <div class="links">
-            <a href="/calendar">&#8592; Back to calendar</a>
+            <a th:href="@{/calendar(schoolId=${selectedSchoolId})}">&#8592; Back to calendar</a>
             <span class="separator">&middot;</span>
             <a href="/classifications">All classifications</a>
         </div>
@@ -127,5 +126,6 @@
             });
         })();
     </script>
+    <script type="module" src="/js/theme-animated.js"></script>
 </body>
 </html>

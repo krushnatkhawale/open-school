@@ -4,31 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calendar — Private Digital School</title>
-    <link rel="stylesheet" th:href="@{/css/style.css(v=4)}">
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.162.0/examples/jsm/"
+      }
+    }
+    </script>
+    <link rel="stylesheet" th:href="@{/css/style.css(v=23)}">
 </head>
 <body>
-    <nav class="navbar">
-        <a href="/classifications" class="brand">
-            <span class="logo">&#127979;</span>
-            Private Digital School
-        </a>
-        <div class="nav-links">
-            <a href="/feed">Feed</a>
-            <a href="/classifications">Classifications</a>
-            <a href="/calendar" class="active">Calendar</a>
-        </div>
-    </nav>
+    <canvas id="three-bg" aria-hidden="true"></canvas>
+    <nav th:replace="~{fragments :: navbar('calendar')}"></nav>
 
     <main class="container">
         <h1>Calendar</h1>
 
         <div class="calendar-header">
             <div class="calendar-nav">
-                <a th:href="@{/calendar(year=${prevYear}, month=${prevMonth})}">&#8592; Previous</a>
+                <a th:href="@{/calendar(year=${prevYear}, month=${prevMonth}, schoolId=${selectedSchoolId})}">&#8592; Previous</a>
             </div>
             <span class="month-year" th:text="${monthName + ' ' + year}"></span>
             <div class="calendar-nav">
-                <a th:href="@{/calendar(year=${nextYear}, month=${nextMonth})}">Next &#8594;</a>
+                <a th:href="@{/calendar(year=${nextYear}, month=${nextMonth}, schoolId=${selectedSchoolId})}">Next &#8594;</a>
             </div>
         </div>
 
@@ -52,7 +51,7 @@
                     <th:block th:each="cell : ${week}">
                         <div th:classappend="${cell.day == 0} ? 'calendar-day-cell empty' : 'calendar-day-cell'">
                             <a th:if="${cell.day > 0}"
-                               th:href="@{/calendar/day(date=${cell.dateStr})}"
+                               th:href="@{/calendar/day(date=${cell.dateStr}, schoolId=${selectedSchoolId})}"
                                th:text="${cell.day}"
                                th:classappend="${cell.hasClassifications && cell.hasScheduledEvents} ? 'calendar-day-link has-both' : (${cell.hasScheduledEvents} ? 'calendar-day-link has-scheduled' : (${cell.hasClassifications} ? 'calendar-day-link has-classifications' : 'calendar-day-link'))"
                                class="calendar-day-link"></a>
@@ -70,5 +69,6 @@
             <a href="/classifications">&#8592; Back to list</a>
         </div>
     </main>
+    <script type="module" src="/js/theme-animated.js"></script>
 </body>
 </html>

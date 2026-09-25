@@ -1,5 +1,7 @@
 package com.kaushalya.digitalschool.web;
 
+import com.kaushalya.digitalschool.onboarding.AppUserRepository;
+import com.kaushalya.digitalschool.onboarding.SchoolRepository;
 import com.kaushalya.digitalschool.shared.CommunicationType;
 import com.kaushalya.digitalschool.storage.ClassificationRecord;
 import com.kaushalya.digitalschool.storage.ClassificationRecordRepository;
@@ -18,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Controller
@@ -26,23 +29,33 @@ public class CalendarController {
 
     private final ClassificationRecordRepository classificationRepository;
     private final ScheduledEventRepository scheduledEventRepository;
+    private final SchoolRepository schoolRepository;
+    private final AppUserRepository appUserRepository;
 
     public CalendarController(ClassificationRecordRepository classificationRepository,
-                              ScheduledEventRepository scheduledEventRepository) {
+                              ScheduledEventRepository scheduledEventRepository,
+                              SchoolRepository schoolRepository,
+                              AppUserRepository appUserRepository) {
         this.classificationRepository = classificationRepository;
         this.scheduledEventRepository = scheduledEventRepository;
+        this.schoolRepository = schoolRepository;
+        this.appUserRepository = appUserRepository;
     }
 
     @GetMapping
     public String calendar(@RequestParam(required = false) Integer year,
                            @RequestParam(required = false) Integer month,
+                           @RequestParam(required = false) UUID schoolId,
                            Model model) {
         YearMonth current = YearMonth.now();
         int y = year != null ? year : current.getYear();
         int m = month != null ? month : current.getMonthValue();
         YearMonth yearMonth = YearMonth.of(y, m);
+        UUID selectedSchoolId = validSchoolId(schoolId);
+        List<Long> schoolChatIds = schoolChatIds(selectedSchoolId);
 
         Set<LocalDate> daysWithClassifications = classificationRepository.findByFeedHiddenFalse().stream()
+                .filter(r -> r.getChatId() == null || schoolChatIds.isEmpty() || schoolChatIds.contains(r.getChatId()))
                 .map(ClassificationRecord::getEventDate)
                 .filter(d -> d != null && YearMonth.from(d).equals(yearMonth))
                 .collect(Collectors.toSet());
@@ -50,6 +63,7 @@ public class CalendarController {
         Set<LocalDate> daysWithScheduled = scheduledEventRepository
                 .findByEventDateBetweenOrderByEventDateAsc(yearMonth.atDay(1), yearMonth.atEndOfMonth())
                 .stream()
+                .filter(e -> e.getChatId() == null || schoolChatIds.isEmpty() || schoolChatIds.contains(e.getChatId()))
                 .map(ScheduledEvent::getEventDate)
                 .collect(Collectors.toSet());
 
@@ -88,21 +102,49 @@ public class CalendarController {
         model.addAttribute("prevMonth", prev.getMonthValue());
         model.addAttribute("nextYear", next.getYear());
         model.addAttribute("nextMonth", next.getMonthValue());
+        model.addAttribute("schools", schoolRepository.findAllByOrderByNameAsc());
+        model.addAttribute("selectedSchoolId", selectedSchoolId);
         return "calendar";
     }
 
     @GetMapping("/day")
-    public String day(@RequestParam String date, Model model) {
+    public String day(@RequestParam String date,
+                      @RequestParam(required = false) UUID schoolId,
+                      Model model) {
         LocalDate day = LocalDate.parse(date);
-        List<ClassificationRecord> records = classificationRepository.findByFeedHiddenFalseAndEventDateOrderByUploadedAtDesc(day);
-        List<ScheduledEvent> scheduledEvents = scheduledEventRepository.findByEventDateOrderByEventTypeAsc(day);
+        UUID selectedSchoolId = validSchoolId(schoolId);
+        List<Long> schoolChatIds = schoolChatIds(selectedSchoolId);
+        List<ClassificationRecord> records = classificationRepository
+                .findByFeedHiddenFalseAndEventDateOrderByUploadedAtDesc(day).stream()
+                .filter(r -> r.getChatId() == null || schoolChatIds.isEmpty() || schoolChatIds.contains(r.getChatId()))
+                .toList();
+        List<ScheduledEvent> scheduledEvents = scheduledEventRepository
+                .findByEventDateOrderByEventTypeAsc(day).stream()
+                .filter(e -> e.getChatId() == null || schoolChatIds.isEmpty() || schoolChatIds.contains(e.getChatId()))
+                .toList();
         model.addAttribute("records", records);
         model.addAttribute("scheduledEvents", scheduledEvents);
         model.addAttribute("date", date);
         model.addAttribute("types", CommunicationType.values());
+        model.addAttribute("schools", schoolRepository.findAllByOrderByNameAsc());
+        model.addAttribute("selectedSchoolId", selectedSchoolId);
         return "day";
     }
 
     public record CalendarDay(int day, boolean hasClassifications, boolean hasScheduledEvents, String dateStr) {
+    }
+
+    private UUID validSchoolId(UUID schoolId) {
+        if (schoolId == null) {
+            return null;
+        }
+        return schoolRepository.existsById(schoolId) ? schoolId : null;
+    }
+
+    private List<Long> schoolChatIds(UUID schoolId) {
+        if (schoolId == null) {
+            return List.of();
+        }
+        return appUserRepository.findTelegramChatIdsBySchoolId(schoolId);
     }
 }

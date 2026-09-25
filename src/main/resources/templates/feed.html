@@ -4,30 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Feed — Private Digital School</title>
-    <link rel="stylesheet" th:href="@{/css/style.css(v=9)}">
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.162.0/examples/jsm/"
+      }
+    }
+    </script>
+    <link rel="stylesheet" th:href="@{/css/style.css(v=23)}">
 </head>
 <body>
-    <nav class="navbar">
-        <a href="/feed" class="brand">
-            <span class="logo">&#127979;</span>
-            Private Digital School
-        </a>
-        <div class="nav-links">
-            <a href="/feed" class="active">Feed</a>
-            <a href="/classifications">Classifications</a>
-            <a href="/calendar">Calendar</a>
-        </div>
-        <label class="school-picker">
-            <span class="school-picker-label">School</span>
-            <select id="schoolSelect" class="school-select" aria-label="Select school for feed">
-                <option value="">All schools</option>
-                <option th:each="s : ${schools}"
-                        th:value="${s.id}"
-                        th:selected="${selectedSchoolId != null and selectedSchoolId == s.id}"
-                        th:text="${s.name}"></option>
-            </select>
-        </label>
-    </nav>
+    <canvas id="three-bg" aria-hidden="true"></canvas>
+    <nav th:replace="~{fragments :: navbar('feed')}"></nav>
 
     <main class="container feed-layout">
         <section class="feed-notices" th:if="${!#lists.isEmpty(notices)}">
@@ -243,17 +232,6 @@
     </script>
     <script>
         (function () {
-            var select = document.getElementById('schoolSelect');
-            if (!select) return;
-            select.addEventListener('change', function () {
-                var value = select.value;
-                var url = value ? '/feed?schoolId=' + encodeURIComponent(value) : '/feed';
-                window.location.href = url;
-            });
-        })();
-    </script>
-    <script>
-        (function () {
             var form = document.getElementById('feedSearchForm');
             var input = document.getElementById('feedSearchInput');
             var clear = document.getElementById('feedSearchClear');
@@ -407,5 +385,6 @@
             });
         })();
     </script>
+    <script type="module" src="/js/theme-animated.js"></script>
 </body>
 </html>
