@@ -58,11 +58,20 @@ A pre-migration H2 backup was saved to
   `src/test/resources/application.properties` supplies the default H2 datasource
   (`jdbc:h2:mem:digitalschool-test;MODE=PostgreSQL;...`) and excludes the Telegram
   long-polling starter. Individual tests may point at their own in-memory DB.
-- Run everything with `./gradlew test`.
-- The Playwright suite uses `application-e2e.yml` (also in-memory H2).
-- `.github/workflows/ci.yml` runs `./gradlew test` on pushes and pull requests to
-  `main` with Temurin Java 25, uploads JUnit results/report, and backs the README
-  CI badge. No database service is configured in CI.
+- Run everything with `./gradlew test`. JaCoCo 0.8.16 attaches to the same run and
+  writes an HTML/XML/CSV report to `build/reports/jacoco/test/`.
+- `./gradlew jacocoTestCoverageVerification` (also part of `./gradlew check`)
+  fails below **65% line** / **55% branch** coverage. Current: 68.0% lines,
+  63.6% branches, 65.9% instructions (221 tests).
+- The Playwright suite uses `application-e2e.yml` (also in-memory H2) and is not
+  counted in JaCoCo coverage.
+- `.github/workflows/ci.yml` runs `./gradlew test jacocoTestCoverageVerification`
+  on pushes and pull requests to `main` with Temurin Java 25, uploads JUnit
+  results/report and the JaCoCo HTML report, and backs the README CI badge. No
+  database service is configured in CI.
+- CI regenerates the coverage badges from the JaCoCo CSV and publishes
+  `jacoco.svg`/`branches.svg` to the `badges` branch on pushes to `main`; the
+  README coverage badges read from that branch.
 
 ## Operational setup on this machine
 

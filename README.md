@@ -1,6 +1,8 @@
 # open-school
 
 [![CI](https://github.com/krushnatkhawale/open-school/actions/workflows/ci.yml/badge.svg)](https://github.com/krushnatkhawale/open-school/actions/workflows/ci.yml)
+[![Coverage](https://raw.githubusercontent.com/krushnatkhawale/open-school/badges/jacoco.svg)](https://github.com/krushnatkhawale/open-school/actions/workflows/ci.yml)
+[![Branch coverage](https://raw.githubusercontent.com/krushnatkhawale/open-school/badges/branches.svg)](https://github.com/krushnatkhawale/open-school/actions/workflows/ci.yml)
 
 Spring Boot 4.1 / Java 25 app that ingests school communications (Telegram),
 classifies them, and serves a feed and management UI.
@@ -81,9 +83,34 @@ Run the whole JUnit suite locally with no Postgres or Docker:
   npx playwright test
   ```
 
-CI (`.github/workflows/ci.yml`) runs `./gradlew test` on every push and pull
-request to `main` with Temurin Java 25, and uploads the JUnit results/report as
-artifacts. The status badge at the top of this README reflects that workflow.
+### Coverage
+
+JaCoCo (`0.8.16`) measures coverage during `./gradlew test`; the report is
+written to `build/reports/jacoco/test/html/index.html` (XML and CSV alongside
+it). After a run:
+
+```bash
+./gradlew test jacocoTestReport      # coverage report
+./gradlew jacocoTestCoverageVerification  # fail if below the floor
+```
+
+Current coverage (JaCoCo, instruction / branch / line):
+
+| Metric | Covered |
+| --- | --- |
+| Instructions | **65.9%** |
+| Branches | **63.6%** |
+| Lines | **68.0%** |
+
+`./gradlew check` and CI enforce a floor of **65% line** and **55% branch**
+coverage, so a regression fails the build. The two coverage badges at the top
+of this README are regenerated on every push to `main` from the JaCoCo CSV and
+published to the `badges` branch by CI.
+
+CI (`.github/workflows/ci.yml`) runs the JUnit suite and coverage verification
+on every push and pull request to `main` with Temurin Java 25, and uploads the
+JUnit results, HTML test report, and JaCoCo HTML coverage report as artifacts
+(the coverage badge refresh only runs on pushes to `main`).
 
 ## Documentation
 
