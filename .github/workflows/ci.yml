@@ -6,30 +6,34 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   test:
+    name: JUnit (H2)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '25'
           cache: gradle
-      - name: Run JUnit tests
-        run: ./gradlew test --continue
-      - name: Coverage report (JaCoCo)
-        if: always()
-        run: ./gradlew jacocoTestReport || true
-      - name: Upload coverage
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: jacoco-report
-          path: '**/build/reports/jacoco/**'
+      - name: Run JUnit tests (in-memory H2, no Postgres)
+        run: ./gradlew test
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: junit-results
           path: '**/build/test-results/**'
+          if-no-files-found: ignore
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-report
+          path: '**/build/reports/tests/**'
+          if-no-files-found: ignore

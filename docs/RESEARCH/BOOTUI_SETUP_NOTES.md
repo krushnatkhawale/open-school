@@ -103,6 +103,10 @@ setting in `application.yml` was inert — this predated BootUI and was unrelate
 `jdbc:h2:file:./data/digitalschool;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE` and empty
 username/password (see `H2_DB_ACCESS_NOTES.md`).
 
+> **Historical (superseded 2026-10-31):** H2 is no longer the runtime database and
+> the H2 console is disabled by default. The app now runs on Postgres
+> (`openschool-db`); see `POSTGRES_MIGRATION.md`. H2 is used only by tests.
+
 ## BootUI MCP server + OpenCode (2026-08-12)
 
 BootUI also ships an opt-in MCP **server** (`POST /bootui/api/mcp`, JSON-RPC 2.0) so

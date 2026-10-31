@@ -1,9 +1,14 @@
 ---
 title: "H2 DB Access — Empty Username Gotcha"
 tags: [h2, database, dbeaver, digital-school]
-status: active
+status: superseded
 created: 2026-08-07
 ---
+
+> **Superseded 2026-10-31:** H2 is no longer the runtime database. The app now
+> uses Postgres container `openschool-db` (see `POSTGRES_MIGRATION.md`); H2
+> remains only for tests. The notes below still apply if the frozen H2 store has
+> to be read.
 
 # H2 Database Access Notes (my-private-digital-school)
 

@@ -15,8 +15,9 @@ app:
 
 spring:
   datasource:
-    url: jdbc:h2:file:./data/digitalschool;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;AUTO_SERVER=TRUE
-    driver-class-name: org.h2.Driver
+    url: jdbc:postgresql://localhost:5434/openschool
+    username: openschool
+    password: openschool
   h2:
     console:
       enabled: false
