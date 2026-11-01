@@ -3,6 +3,7 @@
 [![CI](https://github.com/krushnatkhawale/open-school/actions/workflows/ci.yml/badge.svg)](https://github.com/krushnatkhawale/open-school/actions/workflows/ci.yml)
 [![Coverage](https://raw.githubusercontent.com/krushnatkhawale/open-school/badges/jacoco.svg)](https://github.com/krushnatkhawale/open-school/actions/workflows/ci.yml)
 [![Branch coverage](https://raw.githubusercontent.com/krushnatkhawale/open-school/badges/branches.svg)](https://github.com/krushnatkhawale/open-school/actions/workflows/ci.yml)
+[![E2E](https://github.com/krushnatkhawale/open-school/actions/workflows/e2e.yml/badge.svg)](https://github.com/krushnatkhawale/open-school/actions/workflows/e2e.yml)
 
 Spring Boot 4.1 / Java 25 app that ingests school communications (Telegram),
 classifies them, and serves a feed and management UI.
@@ -75,13 +76,21 @@ Run the whole JUnit suite locally with no Postgres or Docker:
 - H2 is not a Postgres substitute for SQL typing: validate new queries with
   nullable parameters against real Postgres too (see the pitfall note in
   `docs/RESEARCH/POSTGRES_MIGRATION.md`).
-- Playwright end-to-end tests use the `e2e` profile (also in-memory H2):
+- Playwright end-to-end tests use the `e2e` profile (also in-memory H2) and
+  start the app automatically through `playwright.config.ts`:
 
   ```bash
-  npm install
-  npx playwright install
-  npx playwright test
+  npm ci
+  npx playwright install chromium
+  npm run test:e2e        # or: npx playwright test e2e/feed-filters.spec.ts
   ```
+
+  The suite covers the feed and its filters/search, classification list and
+  editor, calendar scoping and day details, shared navigation and mobile menu,
+  extraction-rule editing/reset, JSON API contracts, and the theme switcher.
+  Specs call `POST /api/test/seed` (see `e2e/helpers/seed.ts`) so each run uses
+  fresh, deterministic records; extraction-rule specs reset the rules they
+  change. Use `npm run test:e2e:ui` for the interactive runner.
 
 ### Coverage
 
@@ -107,10 +116,14 @@ coverage, so a regression fails the build. The two coverage badges at the top
 of this README are regenerated on every push to `main` from the JaCoCo CSV and
 published to the `badges` branch by CI.
 
-CI (`.github/workflows/ci.yml`) runs the JUnit suite and coverage verification
-on every push and pull request to `main` with Temurin Java 25, and uploads the
-JUnit results, HTML test report, and JaCoCo HTML coverage report as artifacts
-(the coverage badge refresh only runs on pushes to `main`).
+CI runs on every push and pull request to `main` with Temurin Java 25:
+
+- `.github/workflows/ci.yml` runs the JUnit suite and coverage verification and
+  uploads JUnit results, the HTML test report, and the JaCoCo report. The
+  coverage badge refresh only runs on pushes to `main`.
+- `.github/workflows/e2e.yml` installs Chromium, runs the Playwright suite
+  against the `e2e` profile, and uploads the HTML report plus traces/video for
+  failures.
 
 ## Documentation
 

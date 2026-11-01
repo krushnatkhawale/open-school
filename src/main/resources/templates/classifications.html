@@ -244,6 +244,10 @@
                     close();
                 }
             });
+            var cancelBtn = document.getElementById('editCancel');
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', close);
+            }
             document.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape' && !drawer.hidden) close();
             });

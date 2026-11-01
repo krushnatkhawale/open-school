@@ -6,7 +6,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   workers: 1,
-  reporter: 'list',
+  reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
   use: {
     baseURL: 'http://localhost:8080',
     trace: 'on-first-retry',
@@ -16,6 +16,6 @@ export default defineConfig({
     command: './gradlew bootRun --args="--spring.profiles.active=e2e"',
     url: 'http://localhost:8080/classifications',
     reuseExistingServer: !process.env.CI,
-    timeout: 120000,
+    timeout: 180000,
   },
 });
